@@ -1,0 +1,12 @@
+class Reader {
+  Reader({
+    required this.title,
+    required this.id,
+    this.location,
+    this.information,
+  });
+  int id;
+  String title;
+  String? location;
+  String? information;
+}
