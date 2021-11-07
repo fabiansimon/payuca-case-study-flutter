@@ -76,7 +76,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
               ),
-              if (currentUserData.licensePlate != null)
+              if (currentUserData.licensePlate != '')
                 DetailsLabel(
                   title: currentUserData.licensePlate!,
                   icon: CupertinoIcons.car_fill,

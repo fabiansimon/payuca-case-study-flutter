@@ -1,6 +1,8 @@
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:payuca_case_study/config/colors.dart';
 import 'package:payuca_case_study/widgets/BackArrowButton.dart';
+import 'package:payuca_case_study/widgets/CodeContainer.dart';
 import 'package:payuca_case_study/widgets/NotReceivedButton.dart';
 import 'package:payuca_case_study/widgets/PrimaryButton.dart';
 
@@ -12,6 +14,12 @@ class EmailScreen extends StatefulWidget {
 class _EmailScreenState extends State<EmailScreen> {
   final TextEditingController _controller = TextEditingController();
   final PageController _pageController = PageController();
+  final List<TextEditingController> _codeControllers = <TextEditingController>[
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
+  ];
 
   // For PageView Animation
   final Duration _duration = const Duration(milliseconds: 300);
@@ -47,72 +55,89 @@ class _EmailScreenState extends State<EmailScreen> {
         physics: const NeverScrollableScrollPhysics(),
         children: <Widget>[
           _buildEmailView(_textTheme, context),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 20.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+          _buildVerificationView(_textTheme, context),
+        ],
+      )),
+    );
+  }
+
+  Padding _buildVerificationView(TextTheme _textTheme, BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 20.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: BackArrowButton(
+                    onTap: () => _pageController.animateToPage(
+                      0,
+                      duration: _duration,
+                      curve: _curve,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 4.0, bottom: 10),
+                  child: Text(
+                    'Verification Code',
+                    style: _textTheme.headline2!.merge(
+                      const TextStyle(color: black),
+                    ),
+                  ),
+                ),
+                Text(
+                  'An email verification code has been sent to personal@mail.com',
+                  style: _textTheme.bodyText1!.merge(
+                    const TextStyle(
+                      color: black,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: 42.0,
+                    right: 42.0,
+                    bottom: 40.0,
+                    top: 20.0,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: BackArrowButton(
-                          onTap: () => _pageController.animateToPage(
-                            0,
-                            duration: _duration,
-                            curve: _curve,
-                          ),
-                        ),
+                      CodeContainer(
+                        controller: _codeControllers[0],
+                        textInputAction: TextInputAction.next,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4.0, bottom: 10),
-                        child: Text(
-                          'Verification Code',
-                          style: _textTheme.headline2!.merge(
-                            const TextStyle(color: black),
-                          ),
-                        ),
+                      CodeContainer(
+                        controller: _codeControllers[1],
+                        textInputAction: TextInputAction.next,
                       ),
-                      Text(
-                        'An email verification code has been sent to personal@mail.com',
-                        style: _textTheme.bodyText1!.merge(
-                          const TextStyle(
-                            color: black,
-                          ),
-                        ),
+                      CodeContainer(
+                        controller: _codeControllers[2],
+                        textInputAction: TextInputAction.next,
                       ),
-                      Center(
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(
-                            vertical: 40,
-                          ),
-                          height: 84,
-                          width: 260,
-                          decoration: const BoxDecoration(
-                            color: textFieldBackground,
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(4),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Center(
-                        child: NotReceivedButton(
-                          onTap: () =>
-                              Navigator.pushNamed(context, 'TabNavigator'),
-                        ),
+                      CodeContainer(
+                        controller: _codeControllers[3],
+                        textInputAction: TextInputAction.next,
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+                Center(
+                  child: NotReceivedButton(
+                    onTap: () => Navigator.pushNamed(context, 'TabNavigator'),
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      )),
+          ],
+        ),
+      ),
     );
   }
 
@@ -144,17 +169,19 @@ class _EmailScreenState extends State<EmailScreen> {
                   ),
                 ),
                 const SizedBox(height: 40),
-                Container(
-                  decoration: const BoxDecoration(
-                    color: textFieldBackground,
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(4),
-                    ),
-                  ),
+                Form(
+                  autovalidateMode: AutovalidateMode.always,
                   child: TextFormField(
+                    validator: (String? val) =>
+                        !EmailValidator.validate(val!, true)
+                            ? 'Invalid email address'
+                            : null,
                     controller: _controller,
                     onChanged: (_) => _checkField(),
+                    keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
+                      fillColor: textFieldBackground,
+                      filled: true,
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 12,
@@ -226,11 +253,13 @@ class _EmailScreenState extends State<EmailScreen> {
             ),
             PrimaryButton(
               title: 'Verify email',
-              onTap: () => _pageController.animateToPage(
-                1,
-                duration: _duration,
-                curve: _curve,
-              ),
+              onTap: () {
+                _pageController.animateToPage(
+                  1,
+                  duration: _duration,
+                  curve: _curve,
+                );
+              },
               isInactive: _canVerify,
             ),
           ],

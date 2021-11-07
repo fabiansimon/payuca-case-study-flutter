@@ -1,16 +1,18 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:payuca_case_study/config/colors.dart';
+import 'package:payuca_case_study/models/reader.dart';
 import 'package:payuca_case_study/widgets/PrimaryButton.dart';
 
 class ReaderTile extends StatefulWidget {
   ReaderTile({
-    required this.title,
+    required this.reader,
     this.onTap,
     this.onTapButton,
     this.permission = true,
   });
   bool permission;
-  String title;
+  Reader reader;
   Function()? onTap;
   Function()? onTapButton;
 
@@ -47,7 +49,7 @@ class _ReaderTileState extends State<ReaderTile> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      widget.title,
+                      widget.reader.title,
                       style: _textTheme.headline4!.merge(
                         const TextStyle(color: black),
                       ),
@@ -84,16 +86,31 @@ class _ReaderTileState extends State<ReaderTile> {
                   ],
                 ),
               ),
-              Flexible(
-                child: PrimaryButton(
-                  title: 'Button',
-                  onTap: () {
-                    if (widget.onTap != null) {
-                      widget.onTapButton!();
-                    }
-                  },
+              if (widget.reader.isOpen!)
+                const Flexible(
+                  child: Center(
+                    child: Icon(
+                      CupertinoIcons.check_mark_circled_solid,
+                      size: 30,
+                      color: confirmation,
+                    ),
+                  ),
+                )
+              else
+                Flexible(
+                  child: widget.reader.isLoading!
+                      ? const Center(
+                          child: CircularProgressIndicator(),
+                        )
+                      : PrimaryButton(
+                          title: 'Open',
+                          onTap: () {
+                            if (widget.onTap != null) {
+                              widget.onTapButton!();
+                            }
+                          },
+                        ),
                 ),
-              ),
             ],
           ),
         ),

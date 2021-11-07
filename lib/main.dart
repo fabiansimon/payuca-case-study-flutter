@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:payuca_case_study/provider/readers.dart';
 import 'package:payuca_case_study/screens/DetailScreen.dart';
 import 'package:payuca_case_study/screens/EmailScreen.dart';
 import 'package:payuca_case_study/screens/FAQScreen.dart';
